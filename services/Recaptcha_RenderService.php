@@ -1,17 +1,15 @@
 <?php
-/*
-*
-* reCaptcha for Craft Render Service
-* Author: Aaron Berkowitz (@asberk)
-* https://github.com/aberkie/craft-recaptcha
-*
-*/
 namespace Craft;
 
 class Recaptcha_RenderService extends BaseApplicationComponent
 {
-
-    public function render($params)
+    /**
+     * Renders the reCAPTCHA widget
+     *
+     * @return string
+     * @throws Exception
+     */
+    public function render()
     {
         $plugin = craft()->plugins->getPlugin('recaptcha');
         $settings = $plugin->getSettings();
@@ -25,11 +23,16 @@ class Recaptcha_RenderService extends BaseApplicationComponent
             'siteKey' => $settings->attributes['siteKey']
         );
 
-        $html = craft()->templates->render('frontend/recaptcha.html', $vars);
+        try {
+            $html = craft()->templates->render('frontend/recaptcha.html', $vars);
+        } catch (Exception $exception) {
+            throw new Exception(Craft::t('An error occurred when rendering the reCAPTCHA widget.'), 500, $exception);
+        }
+
         craft()->path->setTemplatesPath($oldTemplatesPath);
 
         craft()->templates->includeJsFile('https://www.google.com/recaptcha/api.js');
 
-        echo $html;
+        return $html;
     }
 }

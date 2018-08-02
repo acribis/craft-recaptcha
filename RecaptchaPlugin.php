@@ -1,45 +1,100 @@
 <?php
-
-/*
-*
-* reCaptcha for Craft Main Plugin File
-* Author: Aaron Berkowitz (@asberk)
-* https://github.com/aberkie/craft-recaptcha
-*
-*/
+/**
+ * reCaptcha plugin for Craft CMS
+ *
+ * @author    acribis AG
+ * @copyright Copyright (c) 2018 acribis AG
+ * @link      acribis.ch
+ * @package   craft-recaptcha
+ * @since     0.1.0
+ */
 
 namespace Craft;
-
 class RecaptchaPlugin extends BasePlugin
 {
-    function getName()
+    public function getName()
     {
-        return Craft::t('reCAPTCHA for Craft');
+        return Craft::t('Google reCAPTCHA for Craft CMS contact form');
     }
 
-    function getVersion()
+    public function getDescription()
     {
-        return '1.0.1';
+        return 'Displays and validates Google\'s reCaptcha form widget on Pixel & Tonic\'s Contact Form';
     }
 
-    function getDeveloper()
+    public function getDocumentationUrl()
     {
-        return 'Aaron Berkowitz';
+        return 'https://github.com/acribis/craft-recaptcha/blob/master/README.md';
     }
 
-    function getDeveloperUrl()
+    public function getReleaseFeedUrl()
     {
-        return 'https://github.com/aberkie';
+        return 'https://raw.githubusercontent.com/acribis/craft-recaptcha/master/releases.json';
     }
 
+    public function getVersion()
+    {
+        return '0.1.0';
+    }
+
+    public function getSchemaVersion()
+    {
+        return '0.1.0';
+    }
+
+    public function getDeveloper()
+    {
+        return 'acribis AG';
+    }
+
+    public function getDeveloperUrl()
+    {
+        return 'https://acribis.ch';
+    }
+
+    public function hasCpSection()
+    {
+        return false;
+    }
+
+    public function init()
+    {
+        parent::init();
+
+        craft()->on('contactForm.beforeSend', function(ContactFormEvent $event) {
+            /** @var \Craft\ContactFormModel $message */
+            $message = $event->params['message'];
+
+            $captcha = craft()->request->getPost('g-recaptcha-response');
+            $verified = craft()->recaptcha_verify->verify($captcha);
+
+            if (!$verified) {
+                $message->addError('recaptcha', Craft::t('Please state that you are not a robot'));
+                $event->isValid = false;
+            }
+        });
+    }
+
+
+    /**
+     * Defines the attributes that model your plugin’s available settings.
+     *
+     * @return array
+     */
     protected function defineSettings()
     {
         return array(
             'siteKey' => array(AttributeType::Mixed, 'default' => ''),
-            'secretKey' => array(AttributeType::Mixed, 'default' => '')
+            'secretKey' => array(AttributeType::Mixed, 'default' => ''),
         );
     }
 
+    /**
+     * Returns the HTML that displays your plugin’s settings.
+     *
+     * @return mixed
+     * @throws Exception
+     */
     public function getSettingsHtml()
     {
         return craft()->templates->render('recaptcha/settings', array(
