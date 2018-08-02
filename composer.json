@@ -1,13 +1,13 @@
 {
-    "name": "aberkie/craft-recaptcha",
-    "description": "Google reCAPTCHA for Craft CMS",
+    "name": "acribis/craft-recaptcha",
+    "description": "Google reCAPTCHA for Craft CMS contact form",
+    "type": "craft-plugin",
     "authors": [
         {
-            "name": "Aaron Berkowitz",
-            "homepage": "https://github.com/aberkie"
+            "name": "acribis AG",
+            "homepage": "acribis.ch"
         }
     ],
-    "type": "craft-plugin",
     "require": {
         "composer/installers": "~1.0"
     }
